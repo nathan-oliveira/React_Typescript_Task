@@ -11,11 +11,11 @@ interface ITask {
 }
 
 const TaskForm: React.FC = () => {
-  const history = useHistory()
-  const { id } = useParams()
+  const history = useHistory();
+  const { id } = useParams();
 
   const [model, setModel] = useState<ITask>({
-    title: '', 
+    title: '',
     description: ''
   })
 
@@ -36,15 +36,21 @@ const TaskForm: React.FC = () => {
     e.preventDefault()
 
     if(id !== undefined) {
-      const response = await api.put(`/tasks/${id}`, model)
+      await api.put(`/tasks/${id}`, model)
+        .then((resp) => {
+          if(resp.status === 200)
+            back()
+        })
     } else {
-      const response = await api.post('/tasks', model)
+       await api.post('/tasks', model)
+        .then((resp) => {
+          if(resp.status === 200)
+            back()
+        })
     }
-
-    back()
   }
 
-  async function findTask(id: string) {
+  async function findTask(id: number) {
     const response = await api.get(`/tasks/${id}`)
     setModel({
       title: response.data.title,
@@ -67,26 +73,24 @@ const TaskForm: React.FC = () => {
       <Form onSubmit={onSubmit}>
         <Form.Group>
           <Form.Label>Título</Form.Label>
-          <Form.Control 
-            type="text" 
-            name="title" 
+          <Form.Control
+            type="text"
+            name="title"
             value={model.title}
             onChange={(e: ChangeEvent<HTMLInputElement>) => updateModel(e)} />
         </Form.Group>
 
         <Form.Group>
           <Form.Label>Descrição</Form.Label>
-          <Form.Control 
-          as="textarea" 
-          rows={3} 
+          <Form.Control
+          as="textarea"
+          rows={3}
           value={model.description}
           name="description"
           onChange={(e: ChangeEvent<HTMLInputElement>) => updateModel(e)} />
         </Form.Group>
 
-        <Button variant="dark" type="submit">
-          Salvar
-        </Button>
+        <Button variant="dark" type="submit">Salvar</Button>
       </Form>
     </div>
   )

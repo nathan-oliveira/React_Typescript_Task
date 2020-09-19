@@ -24,8 +24,26 @@ const Task: React.FC = () => {
   }, [])
 
   async function loadTasks() {
-    const response = await api.get('/tasks')
-    setTasks(response.data)
+    await api.get('/tasks')
+      .then((resp) => {
+        setTasks(resp.data)
+      })
+  }
+
+  async function finishedTask(id: number) {
+    await api.patch(`/tasks/${id}`)
+      .then((resp) => {
+        if(resp.status === 200)
+          loadTasks()
+      })
+  }
+
+  async function deleteTask(id: number) {
+    await api.delete(`/tasks/${id}`)
+      .then((resp) => {
+        if(resp.status === 200)
+          loadTasks()
+      })
   }
 
   function formateDate(data: Date) {
@@ -76,10 +94,10 @@ const Task: React.FC = () => {
                   </Badge>
                 </td>
                 <td>
-                  <Button size="sm" onClick={() => editTask(task.id)}>Editar</Button>{' '}
-                  <Button size="sm" variant="success">Finalizar</Button>{' '}
+                  <Button size="sm" disabled={task.finished} onClick={() => editTask(task.id)}>Editar</Button>{' '}
+                  <Button size="sm" disabled={task.finished} variant="success" onClick={() => finishedTask(task.id)}>Finalizar</Button>{' '}
                   <Button size="sm" variant="info" onClick={() => viewTask(task.id)}>Visualizar</Button>{' '}
-                  <Button size="sm" variant="danger">Excluir</Button>
+                  <Button size="sm" variant="danger" onClick={() => deleteTask(task.id)}>Excluir</Button>
                 </td>
               </tr>
             ))
